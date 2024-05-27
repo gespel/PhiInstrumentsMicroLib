@@ -13,6 +13,8 @@ Array<String, 1024> split(String input) {
             sub.concat(input.charAt(i));
         }
     }
+    out.push_back(sub);
+    return out;
 }
 
 enum TokenType {
@@ -57,7 +59,14 @@ Slang::Slang() {
 void Slang::tokenize(String input) {
     //tokens.push_back(Token(TokenType::FUNCTION, "FUNCTION"));
     Array<String, 1024> splited = split(input);
-    for(int i = 0; i < strlen(input.c_str()); i++) {
+
+    Serial.print("Size: ");
+    Serial.println(splited.size());
+    for(auto w : splited) {
+        Serial.println(w);
+    }
+
+    /*for(int i = 0; i < strlen(input.c_str()); i++) {
         if(isAlpha(input.charAt(i))) {
             String name = "";
             while(isAlpha(input.charAt(i))) {
@@ -68,5 +77,5 @@ void Slang::tokenize(String input) {
         if(isDigit(input.charAt(i))) {
 
         }
-    }
+    }*/
 }
