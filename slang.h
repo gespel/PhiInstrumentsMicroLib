@@ -21,7 +21,8 @@ enum TokenType {
     IDENTIFIER,
     NUMBER,
     FUNCTION,
-    RETURN
+    RETURN,
+    SEMICOLON
 };
 
 class Token {
@@ -48,6 +49,7 @@ class Slang {
 public:
     Slang();
     void tokenize(String input);
+    Token createToken(String input);
 private:
     Array<Token, 1024> tokens;
 };
@@ -65,17 +67,32 @@ void Slang::tokenize(String input) {
     for(auto w : splited) {
         Serial.println(w);
     }
-
-    /*for(int i = 0; i < strlen(input.c_str()); i++) {
+    for(auto ts : splited) {
         if(isAlpha(input.charAt(i))) {
             String name = "";
+            int i = 0;
             while(isAlpha(input.charAt(i))) {
                 name.concat(input.charAt(i));
                 i++;
             }
+            auto t = createToken(name);
+            tokens.push_back(t);
         }
-        if(isDigit(input.charAt(i))) {
+        else if(isDigit(input.charAt(i))) {
 
         }
-    }*/
+
+    }
+}
+
+Token Slang::createToken(String input) {
+    if(input.equals("fn")) {
+        return Token(TokenType::FUNCTION, "Function");
+    }
+    else if(input.equals("return")) {
+        return Token(TokenType::RETURN, "Return");
+    }
+    else {
+        return Token(TokenType::IDENTIFIER, input);
+    }
 }
