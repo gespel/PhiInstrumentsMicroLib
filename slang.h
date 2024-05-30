@@ -49,7 +49,7 @@ class Slang {
 public:
     Slang();
     void tokenize(String input);
-    Token createToken(String input);
+    Token createAlphaToken(String input);
 private:
     Array<Token, 1024> tokens;
 };
@@ -68,24 +68,28 @@ void Slang::tokenize(String input) {
         Serial.println(w);
     }
     for(auto ts : splited) {
+        int i = 0;
         if(isAlpha(input.charAt(i))) {
             String name = "";
-            int i = 0;
             while(isAlpha(input.charAt(i))) {
                 name.concat(input.charAt(i));
                 i++;
             }
-            auto t = createToken(name);
+            auto t = createAlphaToken(name);
             tokens.push_back(t);
         }
         else if(isDigit(input.charAt(i))) {
-
+            String nr = "";
+            while(isDigit(input.charAt(i))) {
+                nr.concat(input.charAt(i));
+                i++;
+            }
+            tokens.push_back(Token(TokenType::NUMBER, nr));
         }
-
     }
 }
 
-Token Slang::createToken(String input) {
+Token Slang::createAlphaToken(String input) {
     if(input.equals("fn")) {
         return Token(TokenType::FUNCTION, "Function");
     }
