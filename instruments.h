@@ -177,9 +177,9 @@ void StrangeFM::setModulatorFreq(double freq) {
     this->modulator->setFrequency(this->modulatorFreq);
 }
 
-class Ping {
+class Pling {
 public:
-    Ping(double sampleRate);
+    Pling(double sampleRate);
     double getSample();
     void trigger();
 private:
@@ -190,15 +190,15 @@ private:
     SawtoothSynth *ss;
 };
 
-Ping::Ping(double sampleRate) {
+Pling::Pling(double sampleRate) {
     ss = new SawtoothSynth(1100.0, sampleRate);
 }
 
-double Ping::getSample() {
+double Pling::getSample() {
     double out = 0;
     if(active) {
         out = ss->getSample();
-        ss->setFrequency(1100.0 * (1 - ((double)currentSample / (double)sampleLength)));
+        ss->setFrequency(440.0 * (1 - ((double)currentSample / (double)sampleLength)));
         if(currentSample >= sampleLength) {
             active = false;
             currentSample = 0;
@@ -208,7 +208,7 @@ double Ping::getSample() {
     return out;
 }
 
-void Ping::trigger() {
+void Pling::trigger() {
     active = true;
 }
 
