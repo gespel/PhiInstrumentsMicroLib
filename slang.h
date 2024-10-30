@@ -1,7 +1,8 @@
+#define MAX_TOKENS 256
 #include <Array.h>
 
-Array<String, 1024> split(String input) {
-    Array<String, 1024> out;
+Array<String, MAX_TOKENS> split(String input) {
+    Array<String, MAX_TOKENS> out;
 
     String sub = "";
     for(int i = 0; i < strlen(input.c_str()); i++) {
@@ -22,7 +23,11 @@ enum TokenType {
     NUMBER,
     FUNCTION,
     RETURN,
-    SEMICOLON
+    SEMICOLON,
+    LEFT_PARANTHESIS,
+    RIGHT_PARANTHESIS,
+    LEFT_BRACKETS,
+    RIGHT_BRACKETS
 };
 
 class Token {
@@ -53,6 +58,21 @@ public:
         else if(t == TokenType::NUMBER) {
             return "NUMBER";
         }
+        else if(t == TokenType::LEFT_PARANTHESIS) {
+            return "LEFT_PARANTHESIS";
+        }
+        else if(t == TokenType::RIGHT_PARANTHESIS) {
+            return "RIGHT_PARANTHESIS";
+        }
+        else if(t == TokenType::LEFT_BRACKETS) {
+            return "LEFT_BRACKETS";
+        }
+        else if(t == TokenType::RIGHT_BRACKETS) {
+            return "RIGHT_BRACKETS";
+        }
+        else if(t == TokenType::SEMICOLON) {
+            return "SEMICOLON";
+        }
         return "UNKNOWN";
     }
 private:
@@ -67,7 +87,7 @@ public:
     Token createAlphaToken(String input);
     void printTokens();
 private:
-    Array<Token, 1024> tokens;
+    Array<Token, MAX_TOKENS> tokens;
 };
 
 Slang::Slang() {
@@ -79,28 +99,48 @@ void Slang::printTokens() {
         Serial.println(t.typeAsString() + " -> " + t.getValue());
     }
 }
-
 void Slang::tokenize(String input) {
-    //tokens.push_back(Token(TokenType::FUNCTION, "FUNCTION"));
-    Array<String, 1024> splited = split(input);
+    Array<String, MAX_TOKENS> splited = split(input);
     for(auto ts : splited) {
-        int i = 0;
-        if(isAlpha(ts.charAt(i))) {
-            String name = "";
-            while(isAlpha(ts.charAt(i))) {
-                name.concat(ts.charAt(i));
-                i++;
+        for(int i = 0; i < ts.length(); i++) {
+            if(isAlpha(ts[i])) {
+                String word = "";
+                while(isAlpha(ts[i])) {
+                    word += ts[i];
+                    i++;
+                }
+                i--;
+                this->tokens.push_back(createAlphaToken(word));
             }
-            auto t = createAlphaToken(name);
-            tokens.push_back(t);
-        }
-        else if(isDigit(ts.charAt(i))) {
-            String nr = "";
-            while(isDigit(ts.charAt(i))) {
-                nr.concat(ts.charAt(i));
-                i++;
+            else if(isDigit(ts[i])) {
+                String number = "";
+                while(isDigit(ts[i])) {
+                    number += ts[i];
+                    i++;
+                }
+                Token t(TokenType::NUMBER, number);
+                this->tokens.push_back(t);
             }
-            tokens.push_back(Token(TokenType::NUMBER, nr));
+            else if(ts[i] == '(') {
+                Token t(TokenType::LEFT_PARANTHESIS, "Left Paranthesis");
+                this->tokens.push_back(t);
+            }
+            else if(ts[i] == ')') {
+                Token t(TokenType::RIGHT_PARANTHESIS, "Right Paranthesis");
+                this->tokens.push_back(t);
+            }
+            else if(ts[i] == '{') {
+                Token t(TokenType::LEFT_BRACKETS, "Left Brackets");
+                this->tokens.push_back(t);
+            }
+            else if(ts[i] == '}') {
+                Token t(TokenType::RIGHT_BRACKETS, "Right Brackets");
+                this->tokens.push_back(t);
+            }
+            else if(ts[i] == ';') {
+                Token t(TokenType::SEMICOLON, "Semicolon");
+                this->tokens.push_back(t);
+            }
         }
     }
 }
