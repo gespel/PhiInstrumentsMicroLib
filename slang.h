@@ -27,7 +27,8 @@ enum TokenType {
     LEFT_PARANTHESIS,
     RIGHT_PARANTHESIS,
     LEFT_BRACKETS,
-    RIGHT_BRACKETS
+    RIGHT_BRACKETS,
+    SINESYNTH,
 };
 
 class Token {
@@ -73,6 +74,9 @@ public:
         else if(t == TokenType::SEMICOLON) {
             return "SEMICOLON";
         }
+        else if(t == TokenType::SINESYNTH) {
+            return "SINESYNTH";
+        }
         return "UNKNOWN";
     }
 private:
@@ -84,6 +88,7 @@ class Slang {
 public:
     Slang();
     void tokenize(String input);
+    void interpret();
     Token createAlphaToken(String input);
     void printTokens();
 private:
@@ -153,7 +158,7 @@ Token Slang::createAlphaToken(String input) {
         return Token(TokenType::RETURN, "Return");
     }
     else if(input.equals("sinesynth")) {
-
+        return Token(TokenType::SINESYNTH, "Sinesynth");
     }
     else if(input.equals("sawtoothsynth")) {
         
