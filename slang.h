@@ -202,6 +202,9 @@ void Slang::interpret() {
 
             createSineSynth(freq);
         }
+        else if(peek(tokens[i].getType(), FUNCTION)) {
+            
+        }
     }
 }
 
