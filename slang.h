@@ -1,5 +1,6 @@
 #define MAX_TOKENS 256
 #include <Array.h>
+#include "synths.h"
 
 Array<String, MAX_TOKENS> split(String input) {
     Array<String, MAX_TOKENS> out;
@@ -29,6 +30,7 @@ enum TokenType {
     LEFT_BRACKETS,
     RIGHT_BRACKETS,
     SINESYNTH,
+    COMMA
 };
 
 class Token {
@@ -77,6 +79,9 @@ public:
         else if(t == TokenType::SINESYNTH) {
             return "SINESYNTH";
         }
+        else if(t == TokenType::COMMA) {
+            return "COMMA";
+        }
         return "UNKNOWN";
     }
 private:
@@ -86,23 +91,29 @@ private:
 
 class Slang {
 public:
-    Slang();
+    Slang(double sampleRate);
     void tokenize(String input);
     void interpret();
     Token createAlphaToken(String input);
     void printTokens();
 private:
     Array<Token, MAX_TOKENS> tokens;
+    Array<Synth, 64> synths;
+    bool consume(TokenType input, TokenType expected, int *i);
+    bool peek(TokenType input, TokenType expected);
+    void createSineSynth(String freq);
+    double sampleRate;
 };
 
-Slang::Slang() {
-    
+Slang::Slang(double sampleRate) {
+    this->sampleRate = sampleRate;
 }
 
 void Slang::printTokens() {
     for(Token t : tokens) {
         Serial.println(t.typeAsString() + " -> " + t.getValue());
     }
+    Serial.println("==========================================");
 }
 void Slang::tokenize(String input) {
     Array<String, MAX_TOKENS> splited = split(input);
@@ -124,6 +135,7 @@ void Slang::tokenize(String input) {
                     i++;
                 }
                 Token t(TokenType::NUMBER, number);
+                i--;
                 this->tokens.push_back(t);
             }
             else if(ts[i] == '(') {
@@ -146,6 +158,49 @@ void Slang::tokenize(String input) {
                 Token t(TokenType::SEMICOLON, "Semicolon");
                 this->tokens.push_back(t);
             }
+            else if(ts[i] == ',') {
+                Token t(TokenType::COMMA, "Comma");
+                this->tokens.push_back(t);
+            }
+        }
+    }
+}
+
+bool Slang::peek(TokenType input, TokenType expected) {
+    if(input == expected) {
+        return true;
+    }
+    else {
+        Serial.println("WRONG TOKEN. EXPECTED OTHER TOKEN");
+        exit(-1);
+        return false;
+    }
+}
+
+bool Slang::consume(TokenType input, TokenType expected, int *i) {
+    if(input == expected) {
+        (*i)++;
+        return true;
+    }
+    else {
+        Serial.println("WRONG TOKEN. EXPECTED OTHER TOKEN");
+        exit(-1);
+        return false;
+    }
+}
+
+void Slang::interpret() {
+    for(int i = 0; i < this->tokens.size(); i++) {
+        if(peek(tokens[i].getType(), SINESYNTH)) {
+            consume(tokens[i].getType(), SINESYNTH, &i);
+            consume(tokens[i].getType(), LEFT_PARANTHESIS, &i);
+            peek(tokens[i].getType(), NUMBER);
+            String freq = tokens[i].getValue();
+            consume(tokens[i].getType(), NUMBER, &i);
+            consume(tokens[i].getType(), RIGHT_PARANTHESIS, &i);
+            peek(tokens[i].getType(), SEMICOLON);
+
+            createSineSynth(freq);
         }
     }
 }
@@ -166,4 +221,13 @@ Token Slang::createAlphaToken(String input) {
     else {
         return Token(TokenType::IDENTIFIER, input);
     }
+}
+
+void Slang::createSineSynth(String freq) {
+    double f = freq.toDouble();
+    String pre = "Creating Sine Synthesizer with ";
+    String out = pre + f;
+    Serial.println(out);
+    SineSynth s(f, sampleRate);
+    //synths.push_back(s);
 }
