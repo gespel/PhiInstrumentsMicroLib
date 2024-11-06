@@ -1,4 +1,4 @@
-#define MAX_TOKENS 256
+#define MAX_TOKENS 128
 #include <Array.h>
 #include "synths.h"
 
