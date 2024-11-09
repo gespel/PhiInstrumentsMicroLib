@@ -30,7 +30,13 @@ enum TokenType {
     LEFT_BRACKETS,
     RIGHT_BRACKETS,
     SINESYNTH,
-    COMMA
+    COMMA,
+    IF,
+    PLUS,
+    MINUS,
+    MULTIPLY,
+    DIVIDE,
+    EQUALS
 };
 
 class Token {
@@ -81,6 +87,9 @@ public:
         }
         else if(t == TokenType::COMMA) {
             return "COMMA";
+        }
+        else if(t == TokenType::IF) {
+            return "IF";
         }
         return "UNKNOWN";
     }
@@ -171,8 +180,6 @@ bool Slang::peek(TokenType input, TokenType expected) {
         return true;
     }
     else {
-        Serial.println("WRONG TOKEN. EXPECTED OTHER TOKEN");
-        exit(-1);
         return false;
     }
 }
@@ -184,6 +191,9 @@ bool Slang::consume(TokenType input, TokenType expected, int *i) {
     }
     else {
         Serial.println("WRONG TOKEN. EXPECTED OTHER TOKEN");
+        Serial.print(expected);
+        Serial.print(" ");
+        Serial.println(input);
         exit(-1);
         return false;
     }
@@ -191,6 +201,7 @@ bool Slang::consume(TokenType input, TokenType expected, int *i) {
 
 void Slang::interpret() {
     for(int i = 0; i < this->tokens.size(); i++) {
+        bool executed = false;
         if(peek(tokens[i].getType(), SINESYNTH)) {
             consume(tokens[i].getType(), SINESYNTH, &i);
             consume(tokens[i].getType(), LEFT_PARANTHESIS, &i);
@@ -198,12 +209,17 @@ void Slang::interpret() {
             String freq = tokens[i].getValue();
             consume(tokens[i].getType(), NUMBER, &i);
             consume(tokens[i].getType(), RIGHT_PARANTHESIS, &i);
-            peek(tokens[i].getType(), SEMICOLON);
+            consume(tokens[i].getType(), SEMICOLON, &i);
 
             createSineSynth(freq);
+            executed = true;
         }
         else if(peek(tokens[i].getType(), FUNCTION)) {
             
+            executed = true;
+        }
+        if(executed) {
+            i--;
         }
     }
 }
@@ -214,6 +230,9 @@ Token Slang::createAlphaToken(String input) {
     }
     else if(input.equals("return")) {
         return Token(TokenType::RETURN, "Return");
+    }
+    else if(input.equals("if")) {
+        return Token(TokenType::IF, "If");
     }
     else if(input.equals("sinesynth")) {
         return Token(TokenType::SINESYNTH, "Sinesynth");
