@@ -1,6 +1,7 @@
 #define MAX_TOKENS 128
 #include <Array.h>
-#include "synths.h"
+#include "../synths.h"
+#include "token.h"
 
 Array<String, MAX_TOKENS> split(String input) {
     Array<String, MAX_TOKENS> out;
@@ -19,84 +20,7 @@ Array<String, MAX_TOKENS> split(String input) {
     return out;
 }
 
-enum TokenType {
-    IDENTIFIER,
-    NUMBER,
-    FUNCTION,
-    RETURN,
-    SEMICOLON,
-    LEFT_PARANTHESIS,
-    RIGHT_PARANTHESIS,
-    LEFT_BRACKETS,
-    RIGHT_BRACKETS,
-    SINESYNTH,
-    COMMA,
-    IF,
-    PLUS,
-    MINUS,
-    MULTIPLY,
-    DIVIDE,
-    EQUALS
-};
 
-class Token {
-public:
-    Token() {
-
-    }
-    Token(TokenType t, String v) {
-        this->t = t;
-        this->v = v;
-    }
-    TokenType getType() {
-        return t;
-    }
-    String getValue() {
-        return v;
-    }
-    String typeAsString() {
-        if(t == TokenType::FUNCTION) {
-            return "FUNCTION";
-        }
-        else if(t == TokenType::RETURN) {
-            return "RETURN";
-        }
-        else if(t == TokenType::IDENTIFIER) {
-            return "IDENTIFIER";
-        }
-        else if(t == TokenType::NUMBER) {
-            return "NUMBER";
-        }
-        else if(t == TokenType::LEFT_PARANTHESIS) {
-            return "LEFT_PARANTHESIS";
-        }
-        else if(t == TokenType::RIGHT_PARANTHESIS) {
-            return "RIGHT_PARANTHESIS";
-        }
-        else if(t == TokenType::LEFT_BRACKETS) {
-            return "LEFT_BRACKETS";
-        }
-        else if(t == TokenType::RIGHT_BRACKETS) {
-            return "RIGHT_BRACKETS";
-        }
-        else if(t == TokenType::SEMICOLON) {
-            return "SEMICOLON";
-        }
-        else if(t == TokenType::SINESYNTH) {
-            return "SINESYNTH";
-        }
-        else if(t == TokenType::COMMA) {
-            return "COMMA";
-        }
-        else if(t == TokenType::IF) {
-            return "IF";
-        }
-        return "UNKNOWN";
-    }
-private:
-    TokenType t;
-    String v;
-};
 
 class Slang {
 public:
@@ -105,9 +29,10 @@ public:
     void interpret();
     Token createAlphaToken(String input);
     void printTokens();
+    Array<SineSynth*, 64> getSineSynths();
 private:
     Array<Token, MAX_TOKENS> tokens;
-    Array<Synth, 64> synths;
+    Array<SineSynth*, 64> sineSynths;
     bool consume(TokenType input, TokenType expected, int *i);
     bool peek(TokenType input, TokenType expected);
     void createSineSynth(String freq);
@@ -250,6 +175,10 @@ void Slang::createSineSynth(String freq) {
     String pre = "Creating Sine Synthesizer with ";
     String out = pre + f;
     Serial.println(out);
-    SineSynth s(f, sampleRate);
-    //synths.push_back(s);
+    SineSynth *s = new SineSynth(f, sampleRate);
+    sineSynths.push_back(s);
+}
+
+Array<SineSynth*, 64> Slang::getSineSynths() {
+    return sineSynths;
 }

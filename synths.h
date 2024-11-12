@@ -1,22 +1,24 @@
 #pragma once
 #include <Arduino.h>
 
-class Synth{
+
+
+class SineSynth {
 public:
+    SineSynth();
+    SineSynth(double freq, double sampleRate);
     double getSample();
+    void setFrequency(double freq);
+    void resetPhase();
+private:
+    float freq = 0;
+    float phase = 0;
+    float sampleRate = 0;
 };
 
-class SineSynth : public Synth {
-public:
-  SineSynth(double freq, double sampleRate);
-  double getSample();
-  void setFrequency(double freq);
-  void resetPhase();
-private:
-  float freq = 0;
-  float phase = 0;
-  float sampleRate = 0;
-};
+SineSynth::SineSynth() {
+
+}
 
 SineSynth::SineSynth(double freq, double sampleRate) {
     this->freq = freq;
@@ -33,7 +35,7 @@ void SineSynth::resetPhase() {
     this->phase = 0;
 }
 
-class SawtoothSynth : Synth {
+class SawtoothSynth {
 public:
     SawtoothSynth(double freq, double sampleRate);
     double getSample();
