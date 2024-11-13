@@ -3,28 +3,13 @@
 #include "../synths.h"
 #include "token.h"
 
-Array<String, MAX_TOKENS> split(String input) {
-    Array<String, MAX_TOKENS> out;
 
-    String sub = "";
-    for(int i = 0; i < strlen(input.c_str()); i++) {
-        if(input.charAt(i) == ' ') {
-            out.push_back(sub);
-            sub = "";
-        }
-        else {
-            sub.concat(input.charAt(i));
-        }
-    }
-    out.push_back(sub);
-    return out;
-}
 
 
 
 class Slang {
 public:
-    Slang(double sampleRate);
+    Slang(double sampleRate, Array<Token, MAX_TOKENS> tokens);
     void tokenize(String input);
     void interpret();
     Token createAlphaToken(String input);
@@ -39,7 +24,8 @@ private:
     double sampleRate;
 };
 
-Slang::Slang(double sampleRate) {
+Slang::Slang(double sampleRate, Array<Token, MAX_TOKENS> tokens) {
+    this->tokens = tokens;
     this->sampleRate = sampleRate;
 }
 
@@ -49,56 +35,7 @@ void Slang::printTokens() {
     }
     Serial.println("==========================================");
 }
-void Slang::tokenize(String input) {
-    Array<String, MAX_TOKENS> splited = split(input);
-    for(auto ts : splited) {
-        for(int i = 0; i < ts.length(); i++) {
-            if(isAlpha(ts[i])) {
-                String word = "";
-                while(isAlpha(ts[i])) {
-                    word += ts[i];
-                    i++;
-                }
-                i--;
-                this->tokens.push_back(createAlphaToken(word));
-            }
-            else if(isDigit(ts[i])) {
-                String number = "";
-                while(isDigit(ts[i])) {
-                    number += ts[i];
-                    i++;
-                }
-                Token t(TokenType::NUMBER, number);
-                i--;
-                this->tokens.push_back(t);
-            }
-            else if(ts[i] == '(') {
-                Token t(TokenType::LEFT_PARANTHESIS, "Left Paranthesis");
-                this->tokens.push_back(t);
-            }
-            else if(ts[i] == ')') {
-                Token t(TokenType::RIGHT_PARANTHESIS, "Right Paranthesis");
-                this->tokens.push_back(t);
-            }
-            else if(ts[i] == '{') {
-                Token t(TokenType::LEFT_BRACKETS, "Left Brackets");
-                this->tokens.push_back(t);
-            }
-            else if(ts[i] == '}') {
-                Token t(TokenType::RIGHT_BRACKETS, "Right Brackets");
-                this->tokens.push_back(t);
-            }
-            else if(ts[i] == ';') {
-                Token t(TokenType::SEMICOLON, "Semicolon");
-                this->tokens.push_back(t);
-            }
-            else if(ts[i] == ',') {
-                Token t(TokenType::COMMA, "Comma");
-                this->tokens.push_back(t);
-            }
-        }
-    }
-}
+
 
 bool Slang::peek(TokenType input, TokenType expected) {
     if(input == expected) {
@@ -146,27 +83,6 @@ void Slang::interpret() {
         if(executed) {
             i--;
         }
-    }
-}
-
-Token Slang::createAlphaToken(String input) {
-    if(input.equals("fn")) {
-        return Token(TokenType::FUNCTION, "Function");
-    }
-    else if(input.equals("return")) {
-        return Token(TokenType::RETURN, "Return");
-    }
-    else if(input.equals("if")) {
-        return Token(TokenType::IF, "If");
-    }
-    else if(input.equals("sinesynth")) {
-        return Token(TokenType::SINESYNTH, "Sinesynth");
-    }
-    else if(input.equals("sawtoothsynth")) {
-        
-    }
-    else {
-        return Token(TokenType::IDENTIFIER, input);
     }
 }
 
