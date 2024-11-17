@@ -15,12 +15,17 @@ public:
     Token createAlphaToken(String input);
     void printTokens();
     Array<SineSynth*, 64> getSineSynths();
+    Array<SawtoothSynth*, 64> getSawtoothSynths();
+    int getNumSineSynths();
+    int getNumSawtoothSynths();
 private:
     Array<Token, MAX_TOKENS> tokens;
     Array<SineSynth*, 64> sineSynths;
+    Array<SawtoothSynth*, 64> sawtoothSynths;
     bool consume(TokenType input, TokenType expected, int *i);
     bool peek(TokenType input, TokenType expected);
     void createSineSynth(String freq);
+    void createSawtoothSynth(String freq);
     double sampleRate;
 };
 
@@ -76,6 +81,18 @@ void Slang::interpret() {
             createSineSynth(freq);
             executed = true;
         }
+        else if(peek(tokens[i].getType(), SAWTOOTHSYNTH)) {
+            consume(tokens[i].getType(), SAWTOOTHSYNTH, &i);
+            consume(tokens[i].getType(), LEFT_PARANTHESIS, &i);
+            peek(tokens[i].getType(), NUMBER);
+            String freq = tokens[i].getValue();
+            consume(tokens[i].getType(), NUMBER, &i);
+            consume(tokens[i].getType(), RIGHT_PARANTHESIS, &i);
+            consume(tokens[i].getType(), SEMICOLON, &i);
+
+            createSawtoothSynth(freq);
+            executed = true;
+        }
         else if(peek(tokens[i].getType(), FUNCTION)) {
             
             executed = true;
@@ -95,6 +112,19 @@ void Slang::createSineSynth(String freq) {
     sineSynths.push_back(s);
 }
 
+void Slang::createSawtoothSynth(String freq) {
+    double f = freq.toDouble();
+    String pre = "Creatine Sawtooth Synthesizer with ";
+    String out = pre + f;
+    Serial.println(out);
+    SawtoothSynth *s = new SawtoothSynth(f, sampleRate);
+    sawtoothSynths.push_back(s);
+}
+
 Array<SineSynth*, 64> Slang::getSineSynths() {
     return sineSynths;
+}
+
+Array<SawtoothSynth*, 64> Slang::getSawtoothSynths() {
+    return sawtoothSynths;
 }

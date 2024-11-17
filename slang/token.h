@@ -12,6 +12,7 @@ enum TokenType {
     LEFT_BRACKETS,
     RIGHT_BRACKETS,
     SINESYNTH,
+    SAWTOOTHSYNTH,
     COMMA,
     IF,
     PLUS,
@@ -68,6 +69,9 @@ public:
         }
         else if(t == TokenType::SINESYNTH) {
             return "SINESYNTH";
+        }
+        else if(t == TokenType::SAWTOOTHSYNTH) {
+            return "SAWTOOTHSYNTH";
         }
         else if(t == TokenType::COMMA) {
             return "COMMA";

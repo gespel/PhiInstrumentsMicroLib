@@ -45,7 +45,7 @@ Token Tokenizer::createAlphaToken(String input) {
         return Token(TokenType::SINESYNTH, "Sinesynth");
     }
     else if(input.equals("sawtoothsynth")) {
-        
+        return Token(TokenType::SAWTOOTHSYNTH, "Sawtoothsynth");
     }
     else {
         return Token(TokenType::IDENTIFIER, input);
