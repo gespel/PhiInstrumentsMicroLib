@@ -3,7 +3,7 @@
 #include <Arduino.h>
 #include "token.h"
 
-#define MAX_TOKENS 128
+#define MAX_TOKENS 64
 
 Array<String, MAX_TOKENS> split(String input) {
     Array<String, MAX_TOKENS> out;
