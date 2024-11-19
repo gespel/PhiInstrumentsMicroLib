@@ -6,25 +6,22 @@
 
 class Slang {
 public:
-    Slang(double sampleRate, Array<Token, MAX_TOKENS> tokens);
-    void tokenize(String input);
-    void interpret();
-    Token createAlphaToken(String input);
+    Slang(double sampleRate);
+    void interpret(Array<Token*, MAX_TOKENS> tokens);
     void printTokens();
     Array<SineSynth*, 64> getSineSynths();
     Array<SawtoothSynth*, 64> getSawtoothSynths();
     Array<Function*, 64> getFunctions();
-    int getNumSineSynths();
-    int getNumSawtoothSynths();
     void printDebug();
     void clear();
 private:
-    Array<Token, MAX_TOKENS> tokens;
+    Array<Token, MAX_TOKENS> initTokens;
     Array<SineSynth*, 64> sineSynths;
     Array<SawtoothSynth*, 64> sawtoothSynths;
     Array<Function*, 64> functions;
     bool consume(TokenType input, TokenType expected, int *i);
     bool peek(TokenType input, TokenType expected);
+    bool checkIfFunction(String input);
     void createSineSynth(String freq);
     void createSawtoothSynth(String freq);
     double sampleRate;
@@ -36,13 +33,12 @@ void Slang::clear() {
     functions.clear();
 }
 
-Slang::Slang(double sampleRate, Array<Token, MAX_TOKENS> tokens) {
-    this->tokens = tokens;
+Slang::Slang(double sampleRate) {
     this->sampleRate = sampleRate;
 }
 
 void Slang::printTokens() {
-    for(Token t : tokens) {
+    for(Token t : initTokens) {
         Serial.println(t.typeAsString() + " -> " + t.getValue());
     }
     Serial.println("==========================================");
@@ -74,55 +70,65 @@ bool Slang::consume(TokenType input, TokenType expected, int *i) {
     }
 }
 
-void Slang::interpret() {
-    for(int i = 0; i < this->tokens.size(); i++) {
+void Slang::interpret(Array<Token*, MAX_TOKENS> tokens) {
+    for(int i = 0; i < tokens.size(); i++) {
+        //Serial.println(tokens[i].typeAsString());
         bool executed = false;
-        if(peek(tokens[i].getType(), SINESYNTH)) {
-            consume(tokens[i].getType(), SINESYNTH, &i);
-            consume(tokens[i].getType(), LEFT_PARANTHESIS, &i);
-            peek(tokens[i].getType(), NUMBER);
-            String freq = tokens[i].getValue();
-            consume(tokens[i].getType(), NUMBER, &i);
-            consume(tokens[i].getType(), RIGHT_PARANTHESIS, &i);
-            consume(tokens[i].getType(), SEMICOLON, &i);
+        if(peek(tokens[i]->getType(), SINESYNTH)) {
+            consume(tokens[i]->getType(), SINESYNTH, &i);
+            consume(tokens[i]->getType(), LEFT_PARANTHESIS, &i);
+            peek(tokens[i]->getType(), NUMBER);
+            String freq = tokens[i]->getValue();
+            consume(tokens[i]->getType(), NUMBER, &i);
+            consume(tokens[i]->getType(), RIGHT_PARANTHESIS, &i);
+            consume(tokens[i]->getType(), SEMICOLON, &i);
 
             createSineSynth(freq);
-            executed = true;
         }
-        else if(peek(tokens[i].getType(), SAWTOOTHSYNTH)) {
-            consume(tokens[i].getType(), SAWTOOTHSYNTH, &i);
-            consume(tokens[i].getType(), LEFT_PARANTHESIS, &i);
-            peek(tokens[i].getType(), NUMBER);
-            String freq = tokens[i].getValue();
-            consume(tokens[i].getType(), NUMBER, &i);
-            consume(tokens[i].getType(), RIGHT_PARANTHESIS, &i);
-            consume(tokens[i].getType(), SEMICOLON, &i);
+        else if(peek(tokens[i]->getType(), SAWTOOTHSYNTH)) {
+            consume(tokens[i]->getType(), SAWTOOTHSYNTH, &i);
+            consume(tokens[i]->getType(), LEFT_PARANTHESIS, &i);
+            peek(tokens[i]->getType(), NUMBER);
+            String freq = tokens[i]->getValue();
+            consume(tokens[i]->getType(), NUMBER, &i);
+            consume(tokens[i]->getType(), RIGHT_PARANTHESIS, &i);
+            consume(tokens[i]->getType(), SEMICOLON, &i);
 
             createSawtoothSynth(freq);
-            executed = true;
         }
-        else if(peek(tokens[i].getType(), FUNCTION)) {
+        else if(peek(tokens[i]->getType(), FUNCTION)) {
             Array<Token*, 64> functiontokens;
-            consume(tokens[i].getType(), FUNCTION, &i);
-            peek(tokens[i].getType(), IDENTIFIER);
-            String name = tokens[i].getValue();
-            consume(tokens[i].getType(), IDENTIFIER, &i);
-            consume(tokens[i].getType(), LEFT_BRACKETS, &i);
-            while(tokens[i].getType() != RIGHT_BRACKETS) {
+            consume(tokens[i]->getType(), FUNCTION, &i);
+            peek(tokens[i]->getType(), IDENTIFIER);
+            String name = tokens[i]->getValue();
+            consume(tokens[i]->getType(), IDENTIFIER, &i);
+            consume(tokens[i]->getType(), LEFT_BRACKETS, &i);
+            while(tokens[i]->getType() != RIGHT_BRACKETS) {
                 //Serial.println(tokens[i].typeAsString());
-                functiontokens.push_back(&tokens[i]);
+                Token* tt = new Token(tokens[i]->getType(), tokens[i]->getValue());
+                functiontokens.push_back(tt);
                 i++;
             }
-            consume(tokens[i].getType(), RIGHT_BRACKETS, &i);
+            consume(tokens[i]->getType(), RIGHT_BRACKETS, &i);
             Serial.print("Creating function with the name ");
             Serial.println(name);
             
             functions.push_back(new Function(name, functiontokens));
-            executed = true;
         }
-        if(executed) {
-            i--;
+        else if(peek(tokens[i]->getType(), IDENTIFIER)) {
+            String ident = tokens[i]->getValue();
+            consume(tokens[i]->getType(), IDENTIFIER, &i);
+            if(checkIfFunction(ident)) {
+                Serial.println("IS A FUNCTION");
+                for(Function* f : functions) {
+                    if(f->getName() == ident) {
+                        interpret(f->getTokens());
+                    }
+                }
+            }
+            consume(tokens[i]->getType(), SEMICOLON, &i);
         }
+        i--;
     }
 }
 
@@ -160,8 +166,6 @@ void Slang::printDebug() {
     String pre_sine = "Number of SineSynths: ";
     String pre_saw = " Number of SawtoothSynths: ";
     Serial.println(pre_sine + this->getSineSynths().size() + pre_saw + this->getSawtoothSynths().size());
-
-    Serial.println("");
     String pre_functions = "Number of defined functions: ";
     Serial.println(pre_functions + this->getFunctions().size());
     for(auto f : functions) {
@@ -171,4 +175,14 @@ void Slang::printDebug() {
             Serial.println("\t" + t->typeAsString() + " " + t->getValue());
         }
     }
+    Serial.println();
+}
+
+bool Slang::checkIfFunction(String input) {
+    for(Function* f : functions) {
+        if(f->getName() == input) {
+            return true;
+        }
+    }
+    return false;
 }

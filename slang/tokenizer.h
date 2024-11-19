@@ -24,35 +24,35 @@ Array<String, MAX_TOKENS> split(String input) {
 
 class Tokenizer {
 public:
-    Array<Token, MAX_TOKENS> tokenize(String input);
-    Token createAlphaToken(String input);
+    Array<Token*, MAX_TOKENS> tokenize(String input);
+    Token* createAlphaToken(String input);
     void test();
 private:
-    Array<Token, MAX_TOKENS> tokens;
 };
 
-Token Tokenizer::createAlphaToken(String input) {
+Token* Tokenizer::createAlphaToken(String input) {
     if(input.equals("fn")) {
-        return Token(TokenType::FUNCTION, "Function");
+        return new Token(TokenType::FUNCTION, "Function");
     }
     else if(input.equals("return")) {
-        return Token(TokenType::RETURN, "Return");
+        return new Token(TokenType::RETURN, "Return");
     }
     else if(input.equals("if")) {
-        return Token(TokenType::IF, "If");
+        return new Token(TokenType::IF, "If");
     }
     else if(input.equals("sinesynth")) {
-        return Token(TokenType::SINESYNTH, "Sinesynth");
+        return new Token(TokenType::SINESYNTH, "Sinesynth");
     }
     else if(input.equals("sawtoothsynth")) {
-        return Token(TokenType::SAWTOOTHSYNTH, "Sawtoothsynth");
+        return new Token(TokenType::SAWTOOTHSYNTH, "Sawtoothsynth");
     }
     else {
-        return Token(TokenType::IDENTIFIER, input);
+        return new Token(TokenType::IDENTIFIER, input);
     }
 }
 
-Array<Token, MAX_TOKENS> Tokenizer::tokenize(String input) {
+Array<Token*, MAX_TOKENS> Tokenizer::tokenize(String input) {
+    Array<Token*, MAX_TOKENS> tokens;
     Array<String, MAX_TOKENS> splited = split(input);
     for(auto ts : splited) {
         for(int i = 0; i < ts.length(); i++) {
@@ -63,7 +63,7 @@ Array<Token, MAX_TOKENS> Tokenizer::tokenize(String input) {
                     i++;
                 }
                 i--;
-                this->tokens.push_back(createAlphaToken(word));
+                tokens.push_back(createAlphaToken(word));
             }
             else if(isDigit(ts[i])) {
                 String number = "";
@@ -71,35 +71,35 @@ Array<Token, MAX_TOKENS> Tokenizer::tokenize(String input) {
                     number += ts[i];
                     i++;
                 }
-                Token t(TokenType::NUMBER, number);
+                Token* t = new Token(TokenType::NUMBER, number);
                 i--;
-                this->tokens.push_back(t);
+                tokens.push_back(t);
             }
             else if(ts[i] == '(') {
-                Token t(TokenType::LEFT_PARANTHESIS, "Left Paranthesis");
-                this->tokens.push_back(t);
+                Token* t = new Token(TokenType::LEFT_PARANTHESIS, "Left Paranthesis");
+                tokens.push_back(t);
             }
             else if(ts[i] == ')') {
-                Token t(TokenType::RIGHT_PARANTHESIS, "Right Paranthesis");
-                this->tokens.push_back(t);
+                Token* t = new Token(TokenType::RIGHT_PARANTHESIS, "Right Paranthesis");
+                tokens.push_back(t);
             }
             else if(ts[i] == '{') {
-                Token t(TokenType::LEFT_BRACKETS, "Left Brackets");
-                this->tokens.push_back(t);
+                Token* t = new Token(TokenType::LEFT_BRACKETS, "Left Brackets");
+                tokens.push_back(t);
             }
             else if(ts[i] == '}') {
-                Token t(TokenType::RIGHT_BRACKETS, "Right Brackets");
-                this->tokens.push_back(t);
+                Token* t = new Token(TokenType::RIGHT_BRACKETS, "Right Brackets");
+                tokens.push_back(t);
             }
             else if(ts[i] == ';') {
-                Token t(TokenType::SEMICOLON, "Semicolon");
-                this->tokens.push_back(t);
+                Token* t = new Token(TokenType::SEMICOLON, "Semicolon");
+                tokens.push_back(t);
             }
             else if(ts[i] == ',') {
-                Token t(TokenType::COMMA, "Comma");
-                this->tokens.push_back(t);
+                Token* t = new Token(TokenType::COMMA, "Comma");
+                tokens.push_back(t);
             }
         }
     }
-    return this->tokens;
+    return tokens;
 }
