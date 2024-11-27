@@ -24,6 +24,7 @@ private:
     bool checkIfFunction(String input);
     void createSineSynth(String freq);
     void createSawtoothSynth(String freq);
+    void executeFunction(String name);
     double sampleRate;
 };
 
@@ -119,12 +120,7 @@ void Slang::interpret(Array<Token*, MAX_TOKENS> tokens) {
             String ident = tokens[i]->getValue();
             consume(tokens[i]->getType(), IDENTIFIER, &i);
             if(checkIfFunction(ident)) {
-                Serial.println("IS A FUNCTION");
-                for(Function* f : functions) {
-                    if(f->getName() == ident) {
-                        interpret(f->getTokens());
-                    }
-                }
+                executeFunction(ident);
             }
             consume(tokens[i]->getType(), SEMICOLON, &i);
         }
@@ -185,4 +181,15 @@ bool Slang::checkIfFunction(String input) {
         }
     }
     return false;
+}
+
+void Slang::executeFunction(String name) {
+    Serial.print("Executing function ");
+    Serial.print(name);
+    Serial.println("!");
+    for(Function* f : functions) {
+        if(f->getName() == name) {
+            interpret(f->getTokens());
+        }
+    }
 }
