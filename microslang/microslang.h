@@ -5,9 +5,9 @@
 #include "token.h"
 #include "function.h"
 
-class Slang {
+class MicroSlang {
 public:
-    Slang(double sampleRate);
+    MicroSlang(double sampleRate);
     void interpret(Array<Token*, MAX_TOKENS> tokens);
     void printTokens();
     Array<SineSynth*, 64> getSineSynths();
@@ -29,17 +29,17 @@ private:
     double sampleRate;
 };
 
-void Slang::clear() {
+void MicroSlang::clear() {
     sineSynths.clear();
     sawtoothSynths.clear();
     functions.clear();
 }
 
-Slang::Slang(double sampleRate) {
+MicroSlang::MicroSlang(double sampleRate) {
     this->sampleRate = sampleRate;
 }
 
-void Slang::printTokens() {
+void MicroSlang::printTokens() {
     for(Token t : initTokens) {
         Serial.println(t.typeAsString() + " -> " + t.getValue());
     }
@@ -47,7 +47,7 @@ void Slang::printTokens() {
 }
 
 
-bool Slang::peek(TokenType input, TokenType expected) {
+bool MicroSlang::peek(TokenType input, TokenType expected) {
     if(input == expected) {
         return true;
     }
@@ -56,7 +56,7 @@ bool Slang::peek(TokenType input, TokenType expected) {
     }
 }
 
-bool Slang::consume(TokenType input, TokenType expected, int *i) {
+bool MicroSlang::consume(TokenType input, TokenType expected, int *i) {
     if(input == expected) {
         (*i)++;
         return true;
@@ -72,7 +72,7 @@ bool Slang::consume(TokenType input, TokenType expected, int *i) {
     }
 }
 
-void Slang::interpret(Array<Token*, MAX_TOKENS> tokens) {
+void MicroSlang::interpret(Array<Token*, MAX_TOKENS> tokens) {
     for(int i = 0; i < tokens.size(); i++) {
         //Serial.println(tokens[i].typeAsString());
         bool executed = false;
@@ -129,7 +129,7 @@ void Slang::interpret(Array<Token*, MAX_TOKENS> tokens) {
     }
 }
 
-void Slang::createSineSynth(String freq) {
+void MicroSlang::createSineSynth(String freq) {
     double f = freq.toDouble();
     String pre = "Creating Sine Synthesizer with ";
     String out = pre + f;
@@ -138,7 +138,7 @@ void Slang::createSineSynth(String freq) {
     sineSynths.push_back(s);
 }
 
-void Slang::createSawtoothSynth(String freq) {
+void MicroSlang::createSawtoothSynth(String freq) {
     double f = freq.toDouble();
     String pre = "Creatine Sawtooth Synthesizer with ";
     String out = pre + f;
@@ -147,19 +147,19 @@ void Slang::createSawtoothSynth(String freq) {
     sawtoothSynths.push_back(s);
 }
 
-Array<SineSynth*, 64> Slang::getSineSynths() {
+Array<SineSynth*, 64> MicroSlang::getSineSynths() {
     return sineSynths;
 }
 
-Array<SawtoothSynth*, 64> Slang::getSawtoothSynths() {
+Array<SawtoothSynth*, 64> MicroSlang::getSawtoothSynths() {
     return sawtoothSynths;
 }
 
-Array<Function*, 64> Slang::getFunctions() {
+Array<Function*, 64> MicroSlang::getFunctions() {
     return functions;
 }
 
-void Slang::printDebug() {
+void MicroSlang::printDebug() {
     SPACER;
     String pre_sine = "Number of SineSynths: ";
     String pre_saw = " Number of SawtoothSynths: ";
@@ -177,7 +177,7 @@ void Slang::printDebug() {
     Serial.println();
 }
 
-bool Slang::checkIfFunction(String input) {
+bool MicroSlang::checkIfFunction(String input) {
     for(Function* f : functions) {
         if(f->getName() == input) {
             return true;
@@ -186,7 +186,7 @@ bool Slang::checkIfFunction(String input) {
     return false;
 }
 
-void Slang::executeFunction(String name) {
+void MicroSlang::executeFunction(String name) {
     Serial.print("Executing function ");
     Serial.print(name);
     Serial.println("!");
