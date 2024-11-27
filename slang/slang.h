@@ -1,4 +1,5 @@
 #define MAX_TOKENS 64
+#define SPACER Serial.println("=============================================================")
 #include <Array.h>
 #include "../synths.h"
 #include "token.h"
@@ -159,6 +160,7 @@ Array<Function*, 64> Slang::getFunctions() {
 }
 
 void Slang::printDebug() {
+    SPACER;
     String pre_sine = "Number of SineSynths: ";
     String pre_saw = " Number of SawtoothSynths: ";
     Serial.println(pre_sine + this->getSineSynths().size() + pre_saw + this->getSawtoothSynths().size());
@@ -171,6 +173,7 @@ void Slang::printDebug() {
             Serial.println("\t" + t->typeAsString() + " " + t->getValue());
         }
     }
+    SPACER;
     Serial.println();
 }
 
