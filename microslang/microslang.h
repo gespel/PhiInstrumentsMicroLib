@@ -112,8 +112,8 @@ void MicroSlang::interpret(Array<Token*, MAX_TOKENS> tokens) {
                 i++;
             }
             consume(tokens[i]->getType(), RIGHT_BRACKETS, &i);
-            Serial.print("Creating function with the name ");
-            Serial.println(name);
+            //Serial.print("Creating function with the name ");
+            //Serial.println(name);
             
             functions.push_back(new Function(name, functiontokens));
         }
@@ -133,7 +133,7 @@ void MicroSlang::createSineSynth(String freq) {
     double f = freq.toDouble();
     String pre = "Creating Sine Synthesizer with ";
     String out = pre + f;
-    Serial.println(out);
+    //Serial.println(out);
     SineSynth *s = new SineSynth(f, sampleRate);
     sineSynths.push_back(s);
 }
@@ -142,7 +142,7 @@ void MicroSlang::createSawtoothSynth(String freq) {
     double f = freq.toDouble();
     String pre = "Creatine Sawtooth Synthesizer with ";
     String out = pre + f;
-    Serial.println(out);
+    //Serial.println(out);
     SawtoothSynth *s = new SawtoothSynth(f, sampleRate);
     sawtoothSynths.push_back(s);
 }
@@ -187,9 +187,9 @@ bool MicroSlang::checkIfFunction(String input) {
 }
 
 void MicroSlang::executeFunction(String name) {
-    Serial.print("Executing function ");
-    Serial.print(name);
-    Serial.println("!");
+    //Serial.print("Executing function ");
+    //Serial.print(name);
+    //Serial.println("!");
     for(Function* f : functions) {
         if(f->getName() == name) {
             interpret(f->getTokens());
