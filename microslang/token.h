@@ -19,7 +19,8 @@ enum TokenType {
     MINUS,
     MULTIPLY,
     DIVIDE,
-    EQUALS
+    EQUALS,
+    DYN
 };
 
 
@@ -78,6 +79,9 @@ public:
         }
         else if(t == TokenType::IF) {
             return "IF";
+        }
+        else if(t == TokenType::DYN) {
+            return "DYN";
         }
         return "UNKNOWN";
     }

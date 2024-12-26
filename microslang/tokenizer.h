@@ -46,6 +46,9 @@ Token* Tokenizer::createAlphaToken(String input) {
     else if(input.equals("sawtoothsynth")) {
         return new Token(TokenType::SAWTOOTHSYNTH, "Sawtoothsynth");
     }
+    else if(input.equals("dyn")) {
+        return new Token(TokenType::DYN, "Dynamic");
+    }
     else {
         return new Token(TokenType::IDENTIFIER, input);
     }

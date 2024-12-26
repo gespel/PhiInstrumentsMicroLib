@@ -90,9 +90,16 @@ void MicroSlang::interpret(Array<Token*, MAX_TOKENS> tokens) {
         else if(peek(tokens[i]->getType(), SAWTOOTHSYNTH)) {
             consume(tokens[i]->getType(), SAWTOOTHSYNTH, &i);
             consume(tokens[i]->getType(), LEFT_PARANTHESIS, &i);
-            peek(tokens[i]->getType(), NUMBER);
-            String freq = tokens[i]->getValue();
-            consume(tokens[i]->getType(), NUMBER, &i);
+            String freq;
+            if(peek(tokens[i]->getType(), NUMBER)) {
+                freq = tokens[i]->getValue();
+                consume(tokens[i]->getType(), NUMBER, &i);
+            }
+            else if(peek(tokens[i]->getType(), DYN)) {
+                consume(tokens[i]->getType(), DYN, &i);
+                //TODO: Dynamic variable synth
+            }
+            
             consume(tokens[i]->getType(), RIGHT_PARANTHESIS, &i);
             consume(tokens[i]->getType(), SEMICOLON, &i);
 
